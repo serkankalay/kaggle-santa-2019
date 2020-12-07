@@ -15,7 +15,11 @@ from typing import (
 from gurobipy.gurobipy import GRB, quicksum, tuplelist
 
 from santa_19 import gurobi
-from santa_19.costs import accounting_cost_of_daily_occupancy, preference_cost
+from santa_19.costs import (
+    accounting_cost,
+    accounting_cost_of_daily_occupancy,
+    preference_cost,
+)
 from santa_19.inputs import Day, Family, choice
 from santa_19.parameters import MAX_OCCUPANCY, MIN_OCCUPANCY
 from santa_19.result import evaluate
@@ -299,6 +303,15 @@ def _optimize(
             name="delta",
             vtype=GRB.BINARY,
         )
+        occupancy_pairs = {
+            (o, o_p, d): accounting_cost(o, o_p)
+            for o in _FEASIBLE_OCCUPANCIES
+            for o_p in _FEASIBLE_OCCUPANCIES
+            for d in days
+        }
+        occupancy_pair_vars = model.addVars(
+            occupancy_pairs.keys(), name="phi", lb=0, ub=1
+        )
         logger.info("Created variables")
 
         model.addConstrs(
@@ -313,11 +326,7 @@ def _optimize(
             name="assg",
         )
         model.addConstrs(
-            (
-                occupancy_vars.sum("*", day) == 1
-                for day in days
-            ),
-            name="occ_c"
+            (occupancy_vars.sum("*", day) == 1 for day in days), name="occ_c"
         )
         model.addConstrs(
             (
@@ -344,8 +353,14 @@ def _optimize(
             for family in families
             for family_choice in family.choices
         )
+        accounting_cost_expr = quicksum(
+            occupancy_vars.sum(pair[0], pair[1], "*") * cost
+            for pair, cost in occupancy_pairs.items()
+        )
 
-        model.setObjective(pref_cost_expr, sense=GRB.MINIMIZE)
+        model.setObjective(
+            pref_cost_expr + accounting_cost_expr, sense=GRB.MINIMIZE
+        )
         logger.info("Set objective")
 
         if mip_start:

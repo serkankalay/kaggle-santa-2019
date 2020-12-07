@@ -102,7 +102,7 @@ def preference_cost_of_assignments(
     return preference
 
 
-def _accounting_cost(occupancy: int, occupancy_next_day: int) -> float:
+def accounting_cost(occupancy: int, occupancy_next_day: int) -> float:
     return (
         (occupancy - 125.0)
         / 400.0
@@ -115,7 +115,7 @@ def accounting_cost_of_daily_occupancy(
 ) -> float:
     accounting = 0
     for day in days:
-        accounting += _accounting_cost(
+        accounting += accounting_cost(
             daily_occupancy[day],
             daily_occupancy.get(day + 1, daily_occupancy[day]),
         )

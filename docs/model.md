@@ -69,13 +69,28 @@ $\sum_{MIN_O \le o \le MAX_O} \delta_{od} = 1 \quad \forall d \in D$
 - Occupancy levels
 $\sum_{f \in F} X_{fd} * n_f = \sum_{o \in O} o * \delta_{od} \quad \forall d \in D$
 
+---
+## Constraints - Occupancy Pairs v1
+
 - Occupancy pairs (non-linear)
 $\delta_{od} * \delta_{o'd+1} \le \phi_{oo'd} \quad \forall d \in D, o \in O$
 
 - Occupancy pairs (linearized)
 $\phi_{oo'd} \le \delta_{od} \quad \forall d \in D, o \in O$
 $\phi_{oo'd} \le \delta_{o'd+1} \quad \forall d+1 \in D, o \in O$
-$\phi_{oo'd} \ge \delta_{od} + \delta_{o'd+1} - 1 \quad \forall d \in D, o \in O$
+$\phi_{oo'd} \ge \delta_{od} + \delta_{o'd+1} - 1 \quad \forall d \in D, o \in O$ 
+
+$\phi$ can be relaxed
+
+---
+## Constraints - Occupancy Pairs v2
+
+- Occupancy pairs
+$\sum_{o' \in O} \phi_{oo'd} = \delta_{od} \quad \forall o \in O, d \in D$
+$\sum_{o \in O} \phi_{oo'd} = \delta_{o'd+1} \quad \forall o' \in O, d \in D$
+
+$\phi$ needs to be defined as binary
+
 
 ---
 ## Objective

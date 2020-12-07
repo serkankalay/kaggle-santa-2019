@@ -343,6 +343,7 @@ def _optimize(
             ),
             name="occ",
         )
+        # TODO: Add occupancy pairing constraints.
         logger.info("Set constraints")
 
         pref_cost_expr = quicksum(

@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "santa-19"
+version = "0.1.0"
+description = ""
+authors = ["Serkan Kalay <serkan.kalay@klm.com>"]
+
+[tool.poetry.scripts]
+santa19 = 'santa_19.cli:cli'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^7.1.2"
+pathlib = "^1.0.1"
+black = "^20.8b1"
+isort = "^5.6.4"
+typing = "^3.7.4"
+plotly = "^4.12.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.hg
+  | \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+# below are compatible settings with `black`
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 79
+
+[tool.pytest.ini_options]
+# here some specific options for pytest
+
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+omit = [
+  '**/cli.py'
+]
+exclude_lines = [
+  'pragma: no cover',
+  'raise NotImplementedError',
+  '\.\.\.',
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

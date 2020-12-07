@@ -21,7 +21,6 @@ backgroundColor: #fff
 - $d$: days
 - $f$: families
 - $o$: occupancy level, $MIN_O \le o \le MAX_O$
-- $k$: occupancy difference between consecutive days
 
 ---
 ## Sets
@@ -29,7 +28,7 @@ backgroundColor: #fff
 - $D$: days
 - $F$: families
 - $D(f)$: choices of family $f$
-- $K$: possible difference of occupancy between consecutive days
+- $O$: [$MIN_O$, $MAX_O$]
 
 ---
 ## Parameters
@@ -38,6 +37,7 @@ backgroundColor: #fff
 - $MAX_O$: Maximum daily occupancy (300)
 - $c_{fd}$: Cost of assigning family $f$ to $d$
 - $n_f$: Number of members of $f$
+- $c_{oo'}$: Cost of having $o$ and $o'$ in consecutive days
 
 
 ---
@@ -45,7 +45,7 @@ backgroundColor: #fff
 
 - $X_{fd}$: If family $f$ is assigned to $d$
 - $\delta_{od}$: If family $o$ is the occupancy level in $d$
-- $\phi_{kd}$: If the difference between $d$ and $d+1$ is $k$
+- $\phi_{oo'd}$: If occupancy is $o$ for $d$ and $o'$ for $d+1$
 <!-- - $Z_{f}$: If family $f$ is not assigned, _i.e._ assigned to none of the choices -->
 <!-- - $\phi_{d}$: If $n$ overflow/extra starting capacity is available on $d$
 - $\gamma_{nd}$: If $n$ overflow/extra FTE is available on $d$
@@ -67,19 +67,19 @@ $\sum_{MIN_O \le o \le MAX_O} \delta_{od} = 1 \quad \forall d \in D$
 ## Constraints (contd.)
 
 - Occupancy levels
-$\sum_{f \in F} X_{fd} * n_f = \sum_{MIN_O \le o \le MAX_O} o * \delta_{od} \quad \forall d \in D$
+$\sum_{f \in F} X_{fd} * n_f = \sum_{o \in O} o * \delta_{od} \quad \forall d \in D$
 
-- Occupancy diff (non-linear)
-$\sum_{(o, o') | k = |o-o'|} \delta_{od} * \delta_{o'd+1} \le \phi_{kd} \quad \forall d \in D, k \in K$
+- Occupancy pairs (non-linear)
+$\delta_{od} * \delta_{o'd+1} \le \phi_{oo'd} \quad \forall d \in D, o \in O$
 
-- Occupancy diff (linearized)
-$\phi_{kd} \le \sum_{o | \exists (o,o') | k = |o-o'|} \delta_{od} \quad \forall d \in D, k \in K$
-$\phi_{kd} \le \sum_{o' | \exists (o,o') | k = |o-o'|} \delta_{o'd+1} \quad \forall d \in D, k \in K$
-$\phi_{kd} \ge \sum_{(o, o') | k = |o-o'|} (\delta_{od} + \delta_{o'd+1}) - 1 \quad \forall d \in D, k \in K$
+- Occupancy pairs (linearized)
+$\phi_{oo'd} \le \delta_{od} \quad \forall d \in D, o \in O$
+$\phi_{oo'd} \le \delta_{o'd+1} \quad \forall d+1 \in D, o \in O$
+$\phi_{oo'd} \ge \delta_{od} + \delta_{o'd+1} - 1 \quad \forall d \in D, o \in O$
 
 ---
 ## Objective
 
 - Minimize costs 
 
-$Min \quad \sum_{f \in F}\sum_{d \in D(f)} c_{fd} * X_{fd}$ + 
+$Min \quad \sum_{f \in F}\sum_{d \in D(f)} c_{fd} * X_{fd} + \sum_{(o, o') \in O}\sum_{d \in D} c_{oo'} \phi_{oo'd}$

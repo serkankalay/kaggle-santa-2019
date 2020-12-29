@@ -343,7 +343,29 @@ def _optimize(
             ),
             name="occ",
         )
-        # TODO: Add occupancy pairing constraints.
+
+        n_days = len(list(days))
+        model.addConstrs(
+            (
+                occupancy_pair_vars.sum(occupancy, "*", d)
+                == occupancy_vars[(occupancy, d)]
+                for occupancy in _FEASIBLE_OCCUPANCIES
+                for d in days
+            ),
+            name="occ_l_1",
+        )
+
+        model.addConstrs(
+            (
+                occupancy_pair_vars.sum("*", occupancy, d + 1)
+                == occupancy_vars[(occupancy, d + 1)]
+                for occupancy in _FEASIBLE_OCCUPANCIES
+                for d in days
+                if d + 1 < n_days
+            ),
+            name="occ_l_2",
+        )
+
         logger.info("Set constraints")
 
         pref_cost_expr = quicksum(
@@ -380,6 +402,7 @@ def _optimize(
             assignments = {
                 k[0]: k[1] for k, v in assignment_vars.items() if v.X > 0.5
             }
+            model.write("sol.sol")
             return Solution.from_assignments(assignments, days, family_index)
 
 
